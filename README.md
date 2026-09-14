@@ -29,7 +29,7 @@ The image encoder and tabular encoder process their respective inputs independen
 The **image branch** is an EfficientNet-B0 over the full 512 × 512 radiograph. The **tabular branch** is an MLP over the encoded clinical variables. The two are combined by **FiLM** (Feature-wise Linear Modulation): the clinical features generate a scale (γ) and shift (β) that are applied to the image features,
 
 $$
-\mathbf{h}_{\text{fused}} = \operatorname{LayerNorm}(\mathbf{h}_{\text{img}}) \odot \bigl(1 + \tanh \boldsymbol{\gamma}\bigr) + \boldsymbol{\beta},
+\mathbf{h}_{\text{fused}} = \mathrm{LayerNorm}(\mathbf{h}_{\text{img}}) \odot \bigl(1 + \tanh \boldsymbol{\gamma}\bigr) + \boldsymbol{\beta},
 \qquad
 [\boldsymbol{\gamma}; \boldsymbol{\beta}] = \mathbf{W}\mathbf{h}_{\text{tab}} + \mathbf{b}
 $$
