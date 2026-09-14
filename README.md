@@ -21,6 +21,10 @@ This model reads the radiograph whole. A dual-stream network extracts latent mor
 
 ### Architecture
 
+![Architecture of the multimodal model](figures/figure1_architecture.jpg)
+
+The image encoder and tabular encoder process their respective inputs independently; the extracted features are integrated through FiLM fusion and passed to a multi-task head predicting FVC and FEV1 abnormality.
+
 The **image branch** is an EfficientNet-B0 over the full 512 × 512 radiograph. The **tabular branch** is an MLP over the encoded clinical variables. The two are combined by **FiLM** (Feature-wise Linear Modulation): the clinical features generate a scale (γ) and shift (β) that are applied to the image features,
 
 ```
@@ -43,6 +47,10 @@ Five-fold multilabel-stratified cross-validation over 178 patients, mean ± SD a
 
 Against the best tabular-only baseline (logistic regression over engineered clinical features), AUC rises from 0.719 → 0.814 for FVC and 0.710 → 0.841 for FEV1. Predictions are well calibrated: Brier 0.189 (FVC) and 0.176 (FEV1), expected calibration error 0.106 and 0.134.
 
+![ROC and calibration curves](figures/figure2_performance.png)
+
+(a) ROC curves for FVC, FEV1 and the macro-average. (b) Calibration curves against the diagonal of perfect calibration, with Brier scores (BS) and expected calibration errors (ECE).
+
 ### Ablation — backbone × fusion (macro-AUC)
 
 | Image encoder | Image-only | Concatenate | Attention | FiLM |
@@ -62,7 +70,9 @@ The optimal fusion strategy is backbone-dependent, but FiLM never fell below the
 - **Extreme thoracic hypokyphosis** (T4–12 ≤ 6°) produced simultaneous false positives on both tasks. The model reads a flattened thorax as volume restriction even where physiology is preserved.
 - **Visual–clinical discordance at extreme deformity.** One patient with a 106° Cobb angle was confidently called normal on both tasks (p < 0.1), the visual features overriding clinical severity — a consequence of 2D projection not capturing axial rotation and the resulting loss of internal thoracic volume.
 
-Grad-CAM activations concentrate on rib crowding near the apex, narrowed lung fields, and peri-diaphragmatic regions, rather than tracking gross spinal deviation.
+![Grad-CAM overlays for FVC and FEV1](figures/figure3_gradcam.png)
+
+Grad-CAM for six representative patients (a–f): the preprocessed radiograph (top) and the overlays for the FVC (middle) and FEV1 (bottom) heads. Activations concentrate on rib crowding near the apex, narrowed lung fields, and peri-diaphragmatic regions reflecting restricted mobility — pathophysiologically relevant areas, rather than gross spinal deviation. The blacked-out corners are where burned-in scanner annotations were removed during preprocessing.
 
 ## Dataset
 
@@ -107,6 +117,7 @@ src/
 
 configs/           reference hyperparameter configuration
 docs/              data schema, preprocessing, and reproduction notes
+figures/           de-identified figures from the paper
 scripts/           end-to-end pipeline driver
 ```
 
