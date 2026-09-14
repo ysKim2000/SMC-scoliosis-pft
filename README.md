@@ -7,6 +7,8 @@ This repository contains the research code for:
 > **Spinal morphology–based multimodal AI for predicting pulmonary dysfunction in adolescent idiopathic scoliosis**
 > Kim Y†, Park S-J†, Park J-S, Seo Y-G, Choi S, Chung MJ, Yoo H\*, Kang D-H\*
 > *European Spine Journal* (2026). [10.1007/s00586-026-09893-2](https://doi.org/10.1007/s00586-026-09893-2)
+>
+> † Contributed equally as first authors.  \* Co-corresponding authors.
 
 ---
 
@@ -135,28 +137,6 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Usage
-
-Paths are set in the `if __name__ == '__main__'` block at the bottom of each script; there is no command-line interface. Place the data as described in [`docs/data.md`](docs/data.md) and set the histogram-matching reference before running.
-
-```bash
-# Published model — EfficientNet-B0 + MLP, FiLM fusion, 5-fold CV
-python src/multimodal/train.py
-
-# Metrics from saved checkpoints
-python src/multimodal/evaluate.py
-
-# Grad-CAM overlays
-python src/multimodal/gradcam.py
-
-# Image-only ablation (set USE_IMAGE_ONLY = True)
-python src/multimodal/train_single_modal.py
-```
-
-Or run the whole sequence with [`scripts/run_pipeline.sh`](scripts/run_pipeline.sh). The ablation grid is widened by editing the `backbones`, `fusions` and `tabs` lists near the bottom of `train.py` — see [`docs/reproduction.md`](docs/reproduction.md).
-
-The configuration matching the published model is in [`configs/training_config.yaml`](configs/training_config.yaml).
-
 ## Model selection and hyperparameters
 
 AdamW at lr 1e-4, weight decay 1e-4, cosine annealing with warm restarts (T₀ = 10, T_mult = 2), batch size 16, up to 100 epochs with early stopping on validation loss (patience 10). The loss is `BCEWithLogitsLoss` with a per-task `pos_weight` computed from the training split — class imbalance is handled in the loss rather than by resampling, since resampling did not improve on the unresampled baseline. Augmentation combines affine jitter, random resized crop, horizontal flip and photometric jitter with batch-level MixUp/CutMix applied to image and tabular features together.
@@ -165,16 +145,8 @@ Architecture and hyperparameters were chosen **empirically** during development;
 
 **Cross-validation, not a held-out test set.** All reported metrics are validation metrics aggregated across the five folds, and checkpoint selection happens on the fold being scored. This is optimistic relative to a held-out test set. Fold assignment is fixed (`random_state=42`), but training is not seeded, so per-fold numbers vary between runs by roughly the standard deviations in the table above. The `*_tuned` fields in the results JSON use a Youden's-J threshold fitted on the same fold and are correspondingly biased — they are not the headline numbers.
 
-## Limitations
-
-Single-center, retrospective, and modest in size. External validation was not feasible: no external cohort with paired full-spine radiographs and complete PFT data was available. The 80%-predicted threshold, while clinically intuitive for surgical risk stratification, dichotomizes a continuous measurement and loses information in the 75–85% borderline range, where 28% of this cohort sits. And the model remains a black box — Grad-CAM indicates where it looks, not why.
-
 ## Data and model availability
 
 The datasets are not readily available because of strict privacy and ethical restrictions regarding patient clinical and imaging data collected at Samsung Medical Center. Requests to access the datasets should be directed to the corresponding author.
 
 Trained model weights are likewise not distributed here: checkpoints were produced and stored inside the Samsung Medical Center internal network and cannot be released under the institutional security policy. All performance figures in this README are the values reported in the paper; re-running this code on other data will not reproduce them exactly.
-
-## License
-
-Source code is released under the [MIT License](LICENSE). The license covers the code only — it grants no rights to the clinical or imaging data, nor to any trained model weights.
