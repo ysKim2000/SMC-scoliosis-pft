@@ -5,10 +5,9 @@ Multimodal deep learning that predicts **pulmonary dysfunction in adolescent idi
 This repository contains the research code for:
 
 > **Spinal morphology–based multimodal AI for predicting pulmonary dysfunction in adolescent idiopathic scoliosis**
-> Kim Y†, Park S-J†, Park J-S, Seo Y-G, Choi S, Chung MJ, Yoo H\*, Kang D-H\*
+> Kim Y, Park S-J, Park J-S, Seo Y-G, Choi S, Chung MJ, Yoo H, Kang D-H
 > *European Spine Journal* (2026). [10.1007/s00586-026-09893-2](https://doi.org/10.1007/s00586-026-09893-2)
 >
-> † Contributed equally as first authors.  \* Co-corresponding authors.
 
 ---
 
@@ -29,9 +28,11 @@ The image encoder and tabular encoder process their respective inputs independen
 
 The **image branch** is an EfficientNet-B0 over the full 512 × 512 radiograph. The **tabular branch** is an MLP over the encoded clinical variables. The two are combined by **FiLM** (Feature-wise Linear Modulation): the clinical features generate a scale (γ) and shift (β) that are applied to the image features,
 
-```
-fused = LayerNorm(img_feat) · (1 + tanh(γ)) + β,    (γ, β) = W · tab_feat
-```
+$$
+\mathbf{h}_{\text{fused}} = \operatorname{LayerNorm}(\mathbf{h}_{\text{img}}) \odot \bigl(1 + \tanh \boldsymbol{\gamma}\bigr) + \boldsymbol{\beta},
+\qquad
+[\boldsymbol{\gamma}; \boldsymbol{\beta}] = \mathbf{W}\mathbf{h}_{\text{tab}} + \mathbf{b}
+$$
 
 so a clinical signal can amplify or suppress specific visual channels. A shared trunk then feeds two task-specific heads, trained jointly — multi-task learning lets the closely related FVC and FEV1 objectives share representation.
 
@@ -95,6 +96,10 @@ Expected file layout and full column schemas are in [`docs/data.md`](docs/data.m
 ## Preprocessing
 
 Each radiograph is rescaled and windowed from the DICOM header (inverting `MONOCHROME1`), stripped of burned-in scanner text, histogram-matched to a fixed reference drawn **exclusively from the training set**, enhanced with CLAHE, and resized to 512 × 512 before ImageNet normalization.
+
+![Preprocessing pipeline](figures/figureS1_preprocessing.png)
+
+(a) DICOM windowing/levelling to 8-bit and resizing to 512 × 512; (b) histogram matching to a fixed training-set reference, shown with that reference and its intensity histogram; (c) CLAHE, then replication to three channels and ImageNet normalization.
 
 Two choices are worth calling out:
 
