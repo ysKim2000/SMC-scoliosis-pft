@@ -39,13 +39,12 @@ Why this matters in the results: concatenation *degraded* performance relative t
 
 Five-fold multilabel-stratified cross-validation over 178 patients, mean ± SD across folds.
 
-| Task | Accuracy | Sensitivity | Specificity | AUC |
-|---|---|---|---|---|
-| FVC | 0.747 ± 0.033 | 0.788 ± 0.056 | 0.686 ± 0.088 | **0.814 ± 0.031** |
-| FEV1 | 0.786 ± 0.053 | 0.833 ± 0.083 | 0.762 ± 0.105 | **0.841 ± 0.033** |
-| Macro | 0.767 ± 0.039 | 0.811 ± 0.049 | 0.724 ± 0.086 | **0.827 ± 0.022** |
+| Task | Accuracy | AUC |
+|---|---|---|
+| FVC | 0.747 ± 0.033 | **0.814 ± 0.031** |
+| FEV1 | 0.786 ± 0.053 | **0.841 ± 0.033** |
 
-Accuracy and AUC are as published (Table 3). The paper reports sensitivity and specificity at the macro level only; the per-task values are recomputed from the same five-fold run, which reproduces every published figure exactly.
+Macro-averaged over the two tasks: accuracy 0.767 ± 0.039, sensitivity 0.811 ± 0.049, specificity 0.724 ± 0.086, **AUC 0.827 ± 0.022**.
 
 Against the best tabular-only baseline (logistic regression over engineered clinical features), AUC rises from 0.719 → 0.814 for FVC and 0.710 → 0.841 for FEV1. Predictions are well calibrated: Brier 0.189 (FVC) and 0.176 (FEV1), expected calibration error 0.106 and 0.134.
 
